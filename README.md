@@ -20,7 +20,16 @@ npm run dev
 
 Abre `http://localhost:5173`.
 
-Ejemplo XAMPP: `VITE_API_URL=http://localhost/sipart/public/api`
+Asegúrate de tener la API Laravel en marcha, por ejemplo:
+
+```bash
+cd H:\xampp3\htdocs\sipart
+php artisan serve
+```
+
+Por defecto `VITE_API_URL=http://localhost:8000/api`.
+
+Si usas XAMPP y la URL `/sipart/public/api` no responde (404), sigue con `artisan serve` o configura el virtual host al `public/` del proyecto.
 
 ## Scripts
 

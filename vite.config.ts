@@ -11,5 +11,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      // Útil si VITE_API_URL=/api (evita CORS en local)
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
   },
 })

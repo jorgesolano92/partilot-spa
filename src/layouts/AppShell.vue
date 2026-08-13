@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import type { AppMode } from '@/types'
+import ComprobarParticipacionPanel from '@/components/ComprobarParticipacionPanel.vue'
+import SorteosPanel from '@/components/SorteosPanel.vue'
+
+type MobileTab = 'comprobar' | 'home' | 'sorteos'
 
 const auth = useAuthStore()
 const router = useRouter()
+const mobileTab = ref<MobileTab>('home')
 
 const displayName = computed(() => {
   if (!auth.user) return 'Usuario'
@@ -13,6 +18,7 @@ const displayName = computed(() => {
 })
 
 function goMode(next: AppMode) {
+  mobileTab.value = 'home'
   if (next === 'gestor') {
     auth.enterGestorMode()
     if (auth.managerEntities.length > 1) {
@@ -79,17 +85,51 @@ function logout() {
       </button>
     </nav>
 
-    <main class="main">
-      <RouterView />
-    </main>
+    <div class="workspace" :class="`tab-${mobileTab}`">
+      <ComprobarParticipacionPanel class="col col-side col-comprobar" />
+      <main class="col col-main">
+        <RouterView />
+      </main>
+      <SorteosPanel class="col col-side col-sorteos" />
+    </div>
+
+    <nav class="mobile-tabs" aria-label="Navegación">
+      <button
+        type="button"
+        class="tab"
+        :class="{ active: mobileTab === 'comprobar' }"
+        @click="mobileTab = 'comprobar'"
+      >
+        Comprobar
+      </button>
+      <button
+        type="button"
+        class="tab"
+        :class="{ active: mobileTab === 'home' }"
+        @click="mobileTab = 'home'"
+      >
+        Home
+      </button>
+      <button
+        type="button"
+        class="tab"
+        :class="{ active: mobileTab === 'sorteos' }"
+        @click="mobileTab = 'sorteos'"
+      >
+        Sorteos
+      </button>
+    </nav>
   </div>
 </template>
 
 <style scoped>
 .shell {
-  max-width: 920px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 2.5rem;
+  padding: 1.25rem 1rem 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 .top {
   display: flex;
@@ -122,7 +162,7 @@ function logout() {
 .modes {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 .mode {
@@ -138,7 +178,96 @@ function logout() {
   border-color: var(--accent);
   color: #fff;
 }
-.main {
-  min-height: 50vh;
+.workspace {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+.col {
+  min-height: 520px;
+  max-height: calc(100vh - 170px);
+  overflow: auto;
+}
+.col-comprobar {
+  grid-column: span 3;
+}
+.col-main {
+  grid-column: span 6;
+  min-height: 520px;
+}
+.col-sorteos {
+  grid-column: span 3;
+}
+.mobile-tabs {
+  display: none;
+}
+@media (max-width: 900px) {
+  .shell {
+    padding: 0.85rem 0.85rem 5.5rem;
+    max-width: none;
+  }
+  .tiny {
+    display: none;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    flex: 1;
+  }
+  .col,
+  .col-comprobar,
+  .col-main,
+  .col-sorteos {
+    grid-column: 1 / -1;
+    max-height: none;
+    min-height: 0;
+  }
+  .col-side {
+    display: none;
+  }
+  .workspace.tab-comprobar .col-comprobar {
+    display: block;
+  }
+  .workspace.tab-comprobar .col-main,
+  .workspace.tab-comprobar .col-sorteos {
+    display: none;
+  }
+  .workspace.tab-sorteos .col-sorteos {
+    display: block;
+  }
+  .workspace.tab-sorteos .col-main,
+  .workspace.tab-sorteos .col-comprobar {
+    display: none;
+  }
+  .mobile-tabs {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 0.35rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    gap: 0.25rem;
+  }
+  .tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.7rem 0.4rem;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 12px;
+  }
+  .tab.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
 }
 </style>

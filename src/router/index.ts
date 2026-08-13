@@ -33,6 +33,24 @@ const router = createRouter({
           meta: { mode: 'vendedor' },
         },
         {
+          path: 'vendedor/venta',
+          name: 'vendedor-venta',
+          component: () => import('@/views/VendedorVentaView.vue'),
+          meta: { mode: 'vendedor' },
+        },
+        {
+          path: 'vendedor/participaciones',
+          name: 'vendedor-participaciones',
+          component: () => import('@/views/VendedorParticipacionesView.vue'),
+          meta: { mode: 'vendedor' },
+        },
+        {
+          path: 'vendedor/ventas',
+          name: 'vendedor-ventas',
+          component: () => import('@/views/VendedorVentasView.vue'),
+          meta: { mode: 'vendedor' },
+        },
+        {
           path: 'gestor',
           name: 'gestor',
           component: () => import('@/views/GestorView.vue'),
@@ -42,6 +60,30 @@ const router = createRouter({
           path: 'gestor/entidad',
           name: 'gestor-entidad',
           component: () => import('@/views/SelectEntityView.vue'),
+          meta: { mode: 'gestor' },
+        },
+        {
+          path: 'gestor/participaciones',
+          name: 'gestor-participaciones',
+          component: () => import('@/views/GestorParticipacionesView.vue'),
+          meta: { mode: 'gestor' },
+        },
+        {
+          path: 'gestor/vendedores',
+          name: 'gestor-vendedores',
+          component: () => import('@/views/GestorVendedoresView.vue'),
+          meta: { mode: 'gestor' },
+        },
+        {
+          path: 'gestor/devolucion',
+          name: 'gestor-devolucion',
+          component: () => import('@/views/GestorDevolucionView.vue'),
+          meta: { mode: 'gestor' },
+        },
+        {
+          path: 'gestor/pago',
+          name: 'gestor-pago',
+          component: () => import('@/views/GestorPagoView.vue'),
           meta: { mode: 'gestor' },
         },
       ],
@@ -76,7 +118,16 @@ router.beforeEach(async (to) => {
     return { name: 'home' }
   }
 
-  if (to.name === 'gestor' && auth.needsEntityPick) {
+  if (to.meta.mode === 'usuario' || to.meta.mode === 'vendedor' || to.meta.mode === 'gestor') {
+    auth.setMode(to.meta.mode)
+  }
+
+  if (
+    to.meta.mode === 'gestor' &&
+    to.name !== 'gestor-entidad' &&
+    auth.managerEntities.length > 1 &&
+    !auth.activeEntityId
+  ) {
     return { name: 'gestor-entidad' }
   }
 

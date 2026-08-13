@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost/sipart/public/api'
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 export const api = axios.create({
   baseURL,
@@ -21,7 +21,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = String(error.config?.url || '')
+    const isPublic =
+      url.includes('/public/') || url.includes('/lottery/results') || url.includes('/auth/login')
+    if (error.response?.status === 401 && !isPublic) {
       localStorage.removeItem('partilot_token')
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login'

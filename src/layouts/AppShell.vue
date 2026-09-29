@@ -44,7 +44,7 @@ function goMode(next: AppMode) {
       router.push({ name: 'gestor-entidad' })
       return
     }
-    router.push({ name: 'gestor' })
+    router.push({ name: 'gestor-participaciones' })
     return
   }
   auth.setMode(next)

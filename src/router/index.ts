@@ -2,12 +2,18 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/registro',
+      name: 'registro',
+      component: () => import('@/views/RegisterView.vue'),
       meta: { guest: true },
     },
     {
@@ -24,6 +30,30 @@ const router = createRouter({
           path: 'usuario',
           name: 'usuario',
           component: () => import('@/views/UsuarioView.vue'),
+          meta: { mode: 'usuario' },
+        },
+        {
+          path: 'usuario/cobrar',
+          name: 'usuario-cobrar',
+          component: () => import('@/views/UsuarioCobrarView.vue'),
+          meta: { mode: 'usuario' },
+        },
+        {
+          path: 'usuario/historial',
+          name: 'usuario-historial',
+          component: () => import('@/views/UsuarioHistorialView.vue'),
+          meta: { mode: 'usuario' },
+        },
+        {
+          path: 'usuario/notificaciones',
+          name: 'usuario-notificaciones',
+          component: () => import('@/views/UsuarioNotificacionesView.vue'),
+          meta: { mode: 'usuario' },
+        },
+        {
+          path: 'usuario/perfil',
+          name: 'usuario-perfil',
+          component: () => import('@/views/UsuarioPerfilView.vue'),
           meta: { mode: 'usuario' },
         },
         {
@@ -120,6 +150,19 @@ router.beforeEach(async (to) => {
 
   if (to.meta.mode === 'usuario' || to.meta.mode === 'vendedor' || to.meta.mode === 'gestor') {
     auth.setMode(to.meta.mode)
+  }
+
+  if (to.meta.mode === 'gestor' && auth.managerEntities.length === 1) {
+    const only = auth.managerEntities[0]
+    if (only && auth.activeEntityId !== only.id) {
+      auth.setActiveEntity(only.id)
+    }
+    if (to.name === 'gestor-entidad') {
+      return { name: 'gestor-participaciones' }
+    }
+    if (to.name === 'gestor') {
+      return { name: 'gestor-participaciones' }
+    }
   }
 
   if (

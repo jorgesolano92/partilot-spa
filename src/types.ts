@@ -4,6 +4,8 @@ export interface User {
   id: number
   name: string
   last_name?: string | null
+  last_name2?: string | null
+  nif_cif?: string | null
   email: string
 }
 
@@ -110,6 +112,7 @@ export interface WalletParticipation {
   id: number
   referencia?: string
   entidad?: string
+  entity_id?: number | null
   sorteo?: string
   numeroReservado?: string
   numero?: number | string
@@ -127,6 +130,9 @@ export interface WalletParticipation {
   is_storage?: boolean
   cobrable?: boolean
   payment_blocked?: boolean
+  can_generate_recharge_code?: boolean
+  can_donate?: boolean
+  can_issue_donation_certificate?: boolean
   user_message?: string
   storage_message?: string | null
   presencial_contact?: { formatted?: string }
@@ -137,6 +143,40 @@ export interface WalletParticipation {
   received_from_email?: string | null
   gift_message?: string | null
   gift_status?: string
+}
+
+export interface CobrablesResponse {
+  success: boolean
+  participations: WalletParticipation[]
+  message?: string
+}
+
+export interface CobroRequest {
+  participation_ids: number[]
+  nombre: string
+  apellidos: string
+  nif: string
+  iban: string
+  importe_total: number
+  confirmacion_cobro_irreversible: true
+}
+
+export interface DonacionRequest {
+  participation_ids: number[]
+  importe_donacion: number
+  importe_codigo: number
+  confirmacion_operacion_irreversible: true
+  confirmacion_donacion_irreversible?: true
+  certificado_fiscal?: boolean
+  nombre?: string
+  apellidos?: string
+  nif?: string
+}
+
+export interface DonacionResponse {
+  success: boolean
+  message?: string
+  codigo_recarga?: string
 }
 
 export interface WalletListMeta {
@@ -245,4 +285,59 @@ export interface MySalesResponse {
   sales?: SaleHistorialItem[]
   meta?: WalletListMeta
   message?: string
+}
+
+export interface UserHistorialItem {
+  id: string | number
+  tipo: string
+  fecha: string
+  descripcion?: string
+  direccion?: 'enviado' | 'recibido' | string
+  emailDestinatario?: string | null
+  emailRemitente?: string | null
+  destinatario?: string | null
+  remitente?: string | null
+  importeTotal?: number
+  importeDonacion?: number
+  importeCodigo?: number
+  codigoRecarga?: string | null
+  estado?: string
+  participacion?: WalletParticipation
+  participaciones?: WalletParticipation[]
+}
+
+export interface UserHistorialResponse {
+  success: boolean
+  historial: UserHistorialItem[]
+  meta?: WalletListMeta
+  message?: string
+}
+
+export interface AppNotification {
+  id: number
+  tipo: string
+  titulo: string
+  mensaje: string
+  fecha: string
+  leida: boolean
+  detalle?: string | null
+  rolContext?: string
+  entidadNombre?: string | null
+  invitadorTexto?: string | null
+  entity_image?: string | null
+  roleInvitationKey?: string | null
+  assignmentState?: string | null
+  actionable?: boolean
+  deepLink?: string | null
+}
+
+export interface NotificationsListResponse {
+  success: boolean
+  notifications: AppNotification[]
+  message?: string
+}
+
+export interface UnreadCountResponse {
+  success: boolean
+  count: number
 }

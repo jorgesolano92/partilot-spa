@@ -1,0 +1,568 @@
+/* Partilot SPA — patrones visuales alineados con la app Ionic */
+
+.page {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  width: fit-content;
+}
+
+.section-header {
+  margin-bottom: 4px;
+}
+
+.section-title {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.entity-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 12px 14px;
+  background: #e8e9eb;
+  border-radius: 16px;
+}
+
+.entity-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-right: auto;
+}
+
+.entity-banner .pill-badge {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Resumen tipo app (fondo gris, no chips naranjas) */
+.summary-card {
+  background: #e8e9eb;
+  border-radius: 24px;
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+.summary-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.summary-metric {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.summary-metric strong {
+  display: block;
+  font-size: 1.05rem;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.summary-metric span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.summary-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 0.8rem;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.summary-line:last-child {
+  margin-bottom: 0;
+}
+
+.summary-line span {
+  color: var(--muted);
+}
+
+.summary-line strong {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* Tarjetas de acción (home gestor/vendedor/usuario) */
+.acciones-principales {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.accion-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  background: #fff;
+  text-align: left;
+  transition: transform 0.15s ease;
+}
+
+.accion-card:hover {
+  transform: scale(0.99);
+}
+
+.accion-card .card-title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2430;
+  line-height: 1.35;
+}
+
+.accion-card .card-description {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #1f2430;
+  line-height: 1.35;
+  flex: 1;
+}
+
+.accion-card .card-illustration {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.accion-card .card-image {
+  width: 80px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.accion-card.wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  min-height: auto;
+  gap: 12px;
+}
+
+.accion-card.wide .card-illustration {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.accion-card.participaciones-card {
+  background: linear-gradient(135deg, #a9ddd3 0%, #95cfc4 100%);
+}
+
+.accion-card.vendedores-card,
+.accion-card.escaner-card {
+  background: linear-gradient(135deg, #f3c2c8 0%, #eaabb4 100%);
+}
+
+.accion-card.devolucion-card {
+  background: linear-gradient(135deg, #cab0e6 0%, #ad8fd3 100%);
+}
+
+.accion-card.pago-card {
+  background: linear-gradient(135deg, #9fb6ff 0%, #85a3f3 100%);
+}
+
+.accion-card.venta-card {
+  background: linear-gradient(135deg, #b6bfdc 0%, #9ea9ce 100%);
+}
+
+.accion-card.cartera-card {
+  background: linear-gradient(135deg, #a9ddd3 0%, #95cfc4 100%);
+}
+
+.accion-card.loteria-card {
+  background: linear-gradient(135deg, #b6bfdc 0%, #9ea9ce 100%);
+}
+
+.tutorial-card {
+  background: linear-gradient(135deg, #f8e6c8 0%, #f1d7ab 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.tutorial-card img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.tutorial-card h4 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.tutorial-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #1f2430;
+  line-height: 1.4;
+}
+
+/* Lista de tacos */
+.tacos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.taco-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #dfe4eb;
+  padding: 12px 14px;
+  box-shadow: 0 2px 6px rgba(10, 20, 40, 0.08);
+}
+
+.taco-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.taco-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.taco-card-sub {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.taco-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.taco-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef1f4;
+  font-size: 0.75rem;
+}
+
+.taco-stat strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* Listas genéricas (vendedores, etc.) */
+.list-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #dfe4eb;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.list-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.list-card-sub {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.list-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.list-card-meta .highlight {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Cartera / participaciones usuario */
+.participacion-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.participacion-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.participacion-thumb {
+  width: 100px;
+  height: 64px;
+  border-radius: 10px;
+  background: #f5f6f8;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+}
+
+.participacion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.participacion-info strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.participacion-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.participacion-detalle {
+  background: #f8f9fa;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+}
+
+.participacion-detalle p {
+  margin: 0 0 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.participacion-detalle p span:first-child {
+  color: var(--muted);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #e9ecef;
+  color: #495057;
+}
+
+.status-badge.pagada,
+.status-badge.ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.premio,
+.status-badge.accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.status-badge.warn {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.digital {
+  background: rgba(13, 110, 253, 0.15);
+  color: #0d6efd;
+}
+
+.prize-amount {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Botones outline en fila (cartera) */
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-outline {
+  appearance: none;
+  border: 1px solid #e9ecef;
+  border-radius: 24px;
+  padding: 0.65rem 1rem;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filters-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.filters-card .field {
+  margin-bottom: 0.65rem;
+}
+
+.page-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 12px;
+  opacity: 0.45;
+}
+
+.empty-state h3 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.loading-block {
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.feedback-ok {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.section-heading {
+  margin: 8px 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+@media (max-width: 700px) {
+  .acciones-principales {
+    grid-template-columns: 1fr;
+  }
+  .accion-card.wide {
+    grid-column: auto;
+  }
+  .summary-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}

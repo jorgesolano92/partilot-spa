@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import { appPath } from '@/lib/asset'
+
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 export const api = axios.create({
@@ -26,8 +28,9 @@ api.interceptors.response.use(
       url.includes('/public/') || url.includes('/lottery/results') || url.includes('/auth/login')
     if (error.response?.status === 401 && !isPublic) {
       localStorage.removeItem('partilot_token')
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login'
+      const loginPath = appPath('login')
+      if (!window.location.pathname.startsWith(loginPath.replace(/\/$/, '') || '/login')) {
+        window.location.href = loginPath
       }
     }
     return Promise.reject(error)

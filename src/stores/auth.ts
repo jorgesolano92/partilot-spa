@@ -106,6 +106,30 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function register(payload: {
+    email: string
+    password: string
+    fecha_nacimiento: string
+    aceptar_condiciones: true
+  }) {
+    loading.value = true
+    error.value = null
+    try {
+      const { data } = await api.post<LoginUsuarioResponse>('/auth/register', payload)
+      applySession(data)
+      setMode('usuario')
+      return data
+    } catch (e: unknown) {
+      const msg =
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Error de registro'
+      error.value = msg
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function refresh() {
     if (!token.value) return
     const { data } = await api.post<LoginUsuarioResponse>('/auth/refresh')
@@ -154,6 +178,7 @@ export const useAuthStore = defineStore('auth', () => {
     needsEntityPick,
     activeEntity,
     login,
+    register,
     logout,
     refresh,
     fetchUser,

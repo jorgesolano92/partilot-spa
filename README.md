@@ -5,9 +5,16 @@ SPA Vue 3 (Vite + TypeScript + Pinia + Vue Router) para acceso como **usuario**,
 Consume la API del backend Laravel (`H:\xampp3\htdocs\sipart`), mismo auth que la app Ionic:
 
 - `POST /api/auth/login-usuario`
+- `POST /api/auth/register`
 - Header `Authorization: Bearer {token}`
 
 El panel Blade de administración es otra superficie (superadmin / administración / entidad / gestor responsable).
+
+## Cubierto en la SPA
+
+- **Usuario:** cartera, digitalizar, código, regalar, cobro/donación, historial, notificaciones, perfil (lectura), registro
+- **Vendedor:** multi-entidad, venta por referencia / manual / digital, participaciones, mis ventas
+- **Gestor:** selector entidad, participaciones, vendedores + invitar, devolución vendedor→entidad, pago presencial
 
 ## Desarrollo
 
@@ -28,8 +35,6 @@ php artisan serve
 ```
 
 Por defecto `VITE_API_URL=http://localhost:8000/api`.
-
-Si usas XAMPP y la URL `/sipart/public/api` no responde (404), sigue con `artisan serve` o configura el virtual host al `public/` del proyecto.
 
 ## Scripts
 

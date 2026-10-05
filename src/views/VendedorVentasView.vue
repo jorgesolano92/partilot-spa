@@ -32,68 +32,40 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="card stack">
-    <RouterLink class="back-link" :to="{ name: 'vendedor' }">← Volver a vendedor</RouterLink>
-    <div>
-      <h2>Mis ventas</h2>
-      <p class="muted">Participaciones marcadas como vendidas.</p>
+  <section class="page stack">
+    <RouterLink class="page-back" :to="{ name: 'vendedor' }">← Volver a vendedor</RouterLink>
+    <div class="section-header">
+      <h1 class="section-title">Mis ventas</h1>
+      <p class="section-subtitle">Participaciones marcadas como vendidas.</p>
     </div>
 
-    <p v-if="loading" class="muted">Cargando ventas…</p>
+    <p v-if="loading" class="loading-block">Cargando ventas…</p>
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-else-if="!loading && !items.length" class="muted">Aún no hay ventas registradas.</p>
 
-    <article v-for="item in items" :key="item.id" class="sale">
+    <article v-for="item in items" :key="item.id" class="list-card">
       <div>
-        <strong>{{ item.participacion?.entidad || item.descripcion || 'Venta' }}</strong>
-        <p class="muted">{{ item.sorteo || item.participacion?.sorteo }}</p>
-        <p class="muted tiny">
+        <h3 class="list-card-title">{{ item.participacion?.entidad || item.descripcion || 'Venta' }}</h3>
+        <p class="list-card-sub">{{ item.sorteo || item.participacion?.sorteo }}</p>
+        <p class="list-card-sub">
           {{ item.participacion?.numeroParticipacion || item.participacion?.numeroReferencia }}
         </p>
       </div>
-      <div class="meta">
+      <div class="list-card-meta">
         <span>{{ item.fechaSorteo || item.participacion?.fechaSorteo || '—' }}</span>
-        <span class="pay">{{ item.formaPago || '—' }}</span>
-        <span v-if="item.participacion?.importeTotal != null" class="amount">
+        <span>{{ item.formaPago || '—' }}</span>
+        <span v-if="item.participacion?.importeTotal != null" class="highlight">
           {{ money(item.participacion.importeTotal) }}
         </span>
       </div>
     </article>
+
+    <div v-if="!loading && !error && !items.length" class="empty-state">
+      <div class="empty-state-icon">🧾</div>
+      <h3>Sin ventas</h3>
+      <p>Aún no hay ventas registradas.</p>
+    </div>
   </section>
 </template>
 
 <style scoped>
-h2 {
-  margin: 0 0 0.25rem;
-}
-.sale {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.8rem 0.9rem;
-  background: #fff;
-}
-.sale p {
-  margin: 0.12rem 0 0;
-}
-.tiny {
-  font-size: 0.82rem;
-}
-.meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.pay {
-  text-transform: capitalize;
-}
-.amount {
-  color: var(--accent);
-  font-weight: 700;
-}
 </style>

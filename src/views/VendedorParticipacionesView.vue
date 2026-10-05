@@ -8,7 +8,7 @@ import type { EntityRef, TacoItem, TacoSummary, TacosResponse } from '@/types'
 
 const auth = useAuthStore()
 const entities = ref<EntityRef[]>([...(auth.seller?.entities ?? [])])
-const entityId = ref<number | null>(null)
+const entityId = ref<number | ''>('')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const summary = ref<TacoSummary | null>(null)
@@ -50,88 +50,87 @@ watch(entityId, () => {
 
 onMounted(async () => {
   await ensureEntities()
-  if (entities.value.length) {
+  if (entities.value.length === 1) {
     entityId.value = entities.value[0].id
   }
 })
 </script>
 
 <template>
-  <section class="card stack">
-    <RouterLink class="back-link" :to="{ name: 'vendedor' }">← Volver a vendedor</RouterLink>
-    <div>
-      <h2>Mis participaciones</h2>
-      <p class="muted">Tacos asignados por entidad (como en la app).</p>
+  <section class="page stack">
+    <RouterLink class="page-back" :to="{ name: 'vendedor' }">← Volver a vendedor</RouterLink>
+
+    <div class="section-header">
+      <h1 class="section-title">Mis participaciones</h1>
+      <p class="section-subtitle">Tacos asignados por entidad.</p>
     </div>
 
-    <label v-if="entities.length > 1" class="field">
-      <span>Entidad</span>
-      <select v-model.number="entityId">
-        <option v-for="e in entities" :key="e.id" :value="e.id">{{ e.name }}</option>
-      </select>
-    </label>
-    <p v-else-if="entities.length === 1" class="muted">Entidad: {{ entities[0].name }}</p>
-    <p v-else class="muted">No hay entidades asociadas a este vendedor.</p>
+    <div v-if="entities.length > 1" class="filters-card">
+      <label class="field">
+        <span>¿De qué entidad?</span>
+        <select v-model="entityId">
+          <option disabled value="">Selecciona una entidad</option>
+          <option v-for="e in entities" :key="e.id" :value="e.id">{{ e.name }}</option>
+        </select>
+      </label>
+    </div>
+    <div v-else-if="entities.length === 1" class="entity-banner">
+      <div class="entity-banner-text">
+        <span class="muted">Entidad</span>
+        <strong>{{ entities[0].name }}</strong>
+      </div>
+    </div>
 
-    <p v-if="loading" class="muted">Cargando…</p>
+    <p v-if="entities.length > 1 && !entityId" class="muted">
+      Elige una entidad para ver sus tacos asignados.
+    </p>
+    <p v-if="loading" class="loading-block">Cargando participaciones…</p>
     <p v-if="error" class="error">{{ error }}</p>
 
-    <div v-if="summary" class="summary-strip">
-      <div class="summary-chip">
-        <strong>{{ summary.available_participations }}</strong>
-        <span>Disponibles</span>
-      </div>
-      <div class="summary-chip">
-        <strong>{{ summary.sales_registered }}</strong>
-        <span>Vendidas</span>
-      </div>
-      <div class="summary-chip">
-        <strong>{{ money(summary.available_amount) }}</strong>
-        <span>Importe disp.</span>
+    <div v-if="summary" class="summary-card">
+      <p class="summary-card-title">Resumen</p>
+      <div class="summary-metrics">
+        <div class="summary-metric">
+          <strong>{{ summary.available_participations }}</strong>
+          <span>Disponibles</span>
+        </div>
+        <div class="summary-metric">
+          <strong>{{ summary.sales_registered }}</strong>
+          <span>Vendidas</span>
+        </div>
+        <div class="summary-metric">
+          <strong>{{ money(summary.available_amount) }}</strong>
+          <span>Importe disp.</span>
+        </div>
       </div>
     </div>
 
-    <article v-for="t in tacos" :key="`${t.set_id}-${t.book_number}`" class="taco">
-      <div>
-        <strong>{{ t.lottery_name || t.set_name || 'Set' }}</strong>
-        <p class="muted">{{ t.participations_range }}</p>
-      </div>
-      <div class="meta">
-        <span>{{ t.available_participations }} disp.</span>
-        <span>{{ t.sales_registered }} vend.</span>
-        <span>{{ money(t.available_amount) }}</span>
-      </div>
-    </article>
+    <div v-if="tacos.length" class="tacos-list">
+      <article
+        v-for="t in tacos"
+        :key="`${t.set_id}-${t.book_number}`"
+        class="taco-card"
+      >
+        <div class="taco-card-header">
+          <div>
+            <h3 class="taco-card-title">{{ t.lottery_name || t.set_name || 'Set' }}</h3>
+            <p class="taco-card-sub">{{ t.participations_range }}</p>
+          </div>
+          <div class="taco-card-meta">
+            <span>{{ money(t.available_amount) }}</span>
+          </div>
+        </div>
+        <div class="taco-stats">
+          <span class="taco-stat"><strong>{{ t.available_participations }}</strong> disponibles</span>
+          <span class="taco-stat"><strong>{{ t.sales_registered }}</strong> vendidas</span>
+        </div>
+      </article>
+    </div>
 
-    <p v-if="!loading && entityId && !tacos.length && !error" class="muted">
-      No hay tacos asignados en esta entidad.
-    </p>
+    <div v-if="!loading && entityId && !tacos.length && !error" class="empty-state">
+      <div class="empty-state-icon">🎫</div>
+      <h3>Sin tacos asignados</h3>
+      <p>No hay participaciones asignadas en esta entidad.</p>
+    </div>
   </section>
 </template>
-
-<style scoped>
-h2 {
-  margin: 0 0 0.25rem;
-}
-.taco {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.8rem 0.9rem;
-  background: #fff;
-}
-.taco p {
-  margin: 0.15rem 0 0;
-}
-.meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-</style>

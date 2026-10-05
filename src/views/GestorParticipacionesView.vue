@@ -48,78 +48,68 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="card stack">
-    <RouterLink class="back-link" :to="{ name: 'gestor' }">← Volver a gestor</RouterLink>
-    <div>
-      <h2>Participaciones</h2>
-      <p class="muted">Resumen de tacos de {{ auth.activeEntity?.name || 'la entidad' }}.</p>
+  <section class="page stack">
+    <RouterLink class="page-back" :to="{ name: 'gestor' }">← Volver a gestor</RouterLink>
+
+    <div class="section-header">
+      <h1 class="section-title">Participaciones</h1>
+      <p class="section-subtitle">
+        Gestiona los tacos de {{ auth.activeEntity?.name || 'la entidad' }}.
+      </p>
     </div>
 
-    <p v-if="loading" class="muted">Cargando…</p>
+    <p v-if="loading" class="loading-block">Cargando participaciones…</p>
     <p v-if="error" class="error">{{ error }}</p>
 
-    <div v-if="summary" class="summary-strip">
-      <div class="summary-chip">
-        <strong>{{ summary.available_participations }}</strong>
-        <span>Disponibles</span>
-      </div>
-      <div class="summary-chip">
-        <strong>{{ summary.sales_registered }}</strong>
-        <span>Vendidas</span>
-      </div>
-      <div class="summary-chip">
-        <strong>{{ summary.returned_participations }}</strong>
-        <span>Devueltas</span>
-      </div>
-      <div class="summary-chip">
-        <strong>{{ money(summary.available_amount) }}</strong>
-        <span>Importe disp.</span>
+    <div v-if="summary" class="summary-card">
+      <p class="summary-card-title">Resumen de la entidad</p>
+      <div class="summary-metrics">
+        <div class="summary-metric">
+          <strong>{{ summary.available_participations }}</strong>
+          <span>Disponibles</span>
+        </div>
+        <div class="summary-metric">
+          <strong>{{ summary.sales_registered }}</strong>
+          <span>Vendidas</span>
+        </div>
+        <div class="summary-metric">
+          <strong>{{ summary.returned_participations }}</strong>
+          <span>Devueltas</span>
+        </div>
+        <div class="summary-metric">
+          <strong>{{ money(summary.available_amount) }}</strong>
+          <span>Importe disp.</span>
+        </div>
       </div>
     </div>
 
-    <article v-for="t in tacos" :key="`${t.set_id}-${t.book_number}-${t.seller_name || ''}`" class="taco">
-      <div>
-        <strong>{{ t.lottery_name || t.set_name || 'Set' }}</strong>
-        <p class="muted">{{ t.participations_range }}</p>
-        <p v-if="t.seller_name" class="muted tiny">{{ t.seller_name }}</p>
-      </div>
-      <div class="meta">
-        <span>{{ t.available_participations }} disp.</span>
-        <span>{{ t.sales_registered }} vend.</span>
-        <span>{{ money(t.available_amount) }}</span>
-      </div>
-    </article>
+    <div v-if="tacos.length" class="tacos-list">
+      <article
+        v-for="t in tacos"
+        :key="`${t.set_id}-${t.book_number}-${t.seller_name || ''}`"
+        class="taco-card"
+      >
+        <div class="taco-card-header">
+          <div>
+            <h3 class="taco-card-title">{{ t.lottery_name || t.set_name || 'Set' }}</h3>
+            <p class="taco-card-sub">{{ t.participations_range }}</p>
+            <p v-if="t.seller_name" class="taco-card-sub">{{ t.seller_name }}</p>
+          </div>
+          <div class="taco-card-meta">
+            <span>{{ money(t.available_amount) }}</span>
+          </div>
+        </div>
+        <div class="taco-stats">
+          <span class="taco-stat"><strong>{{ t.available_participations }}</strong> disponibles</span>
+          <span class="taco-stat"><strong>{{ t.sales_registered }}</strong> vendidas</span>
+        </div>
+      </article>
+    </div>
 
-    <p v-if="!loading && !error && !tacos.length" class="muted">No hay tacos en esta entidad.</p>
+    <div v-if="!loading && !error && !tacos.length" class="empty-state">
+      <div class="empty-state-icon">🎫</div>
+      <h3>No hay tacos</h3>
+      <p>No hay participaciones asignadas en esta entidad.</p>
+    </div>
   </section>
 </template>
-
-<style scoped>
-h2 {
-  margin: 0 0 0.25rem;
-}
-.tiny {
-  font-size: 0.82rem;
-}
-.taco {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.8rem 0.9rem;
-  background: #fff;
-}
-.taco p {
-  margin: 0.12rem 0 0;
-}
-.meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-</style>

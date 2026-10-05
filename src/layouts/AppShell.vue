@@ -6,6 +6,7 @@ import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import type { AppMode, UnreadCountResponse } from '@/types'
 import ComprobarParticipacionPanel from '@/components/ComprobarParticipacionPanel.vue'
+import PendingInvitationBanner from '@/components/PendingInvitationBanner.vue'
 import SorteosPanel from '@/components/SorteosPanel.vue'
 
 type MobileTab = 'comprobar' | 'home' | 'sorteos'
@@ -145,6 +146,8 @@ onUnmounted(() => {
         Gestor
       </button>
     </nav>
+
+    <PendingInvitationBanner :refresh-key="unreadCount" @answered="refreshUnread" />
 
     <div class="workspace" :class="`tab-${mobileTab}`">
       <ComprobarParticipacionPanel class="col col-side col-comprobar" />

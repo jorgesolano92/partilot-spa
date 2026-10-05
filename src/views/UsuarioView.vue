@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { api } from '@/api/client'
 import { isoDate, mediaUrl, money } from '@/lib/format'
 import type { WalletListResponse, WalletParticipation } from '@/types'
@@ -35,6 +36,9 @@ const giftTarget = ref<WalletParticipation | null>(null)
 
 const cartera = computed(() => items.value.filter((p) => !p.is_storage))
 const almacen = computed(() => items.value.filter((p) => p.is_storage))
+const hayCobrables = computed(() =>
+  cartera.value.some((p) => p.cobrable && (p.premio ?? 0) > 0 && p.estado !== 'cobrada'),
+)
 
 function estadoLabel(estado?: string) {
   const map: Record<string, string> = {
@@ -225,13 +229,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="card stack cartera">
-    <div>
-      <h2>Mi cartera</h2>
-      <p class="muted">Gestiona tus participaciones digitalizadas.</p>
+  <section class="page stack cartera">
+    <div class="section-header">
+      <h1 class="section-title">Mi cartera</h1>
+      <p class="section-subtitle">Gestiona tus participaciones digitalizadas.</p>
     </div>
 
-    <form class="filters" @submit.prevent="applyFilters">
+    <form class="filters-card stack" @submit.prevent="applyFilters">
       <label class="field">
         <span>Desde</span>
         <input v-model="filters.date_from" type="date" />
@@ -247,54 +251,78 @@ onMounted(() => {
       <button class="btn" type="submit">Filtrar</button>
     </form>
 
-    <div class="row">
-      <button class="btn btn-ghost" type="button" @click="modal = 'digitalizar'">Digitalizar</button>
-      <button class="btn btn-ghost" type="button" @click="modal = 'codigo'">Vincular código</button>
+    <div class="actions-row">
+      <button class="btn-outline" type="button" @click="modal = 'digitalizar'">Digitalizar</button>
+      <button class="btn-outline" type="button" @click="modal = 'codigo'">Vincular código</button>
+      <RouterLink
+        v-if="hayCobrables"
+        class="btn"
+        :to="{ name: 'usuario-cobrar' }"
+      >
+        Cobrar premios
+      </RouterLink>
+      <RouterLink
+        v-else
+        class="btn-outline"
+        :to="{ name: 'usuario-cobrar' }"
+      >
+        Cobrar / Donar
+      </RouterLink>
+      <RouterLink class="btn-outline" :to="{ name: 'usuario-historial' }">Historial</RouterLink>
+      <RouterLink class="btn-outline" :to="{ name: 'usuario-notificaciones' }">
+        Notificaciones
+      </RouterLink>
+      <RouterLink class="btn-outline" :to="{ name: 'usuario-perfil' }">Perfil</RouterLink>
     </div>
 
-    <p v-if="feedback" class="ok">{{ feedback }}</p>
+    <p v-if="feedback" class="feedback-ok">{{ feedback }}</p>
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="loading" class="muted">Cargando cartera…</p>
+    <p v-if="loading" class="loading-block">Cargando cartera…</p>
 
     <template v-else>
-      <p v-if="!cartera.length && !almacen.length" class="muted">
-        No tienes participaciones aún. Usa Digitalizar o el panel de Comprobar.
-      </p>
+      <div v-if="!cartera.length && !almacen.length" class="empty-state">
+        <div class="empty-state-icon">👛</div>
+        <h3>Sin participaciones</h3>
+        <p>No tienes participaciones aún. Usa Digitalizar o el panel de Comprobar.</p>
+        <button class="btn-outline" type="button" style="margin-top:12px" @click="modal = 'digitalizar'">
+          Digitalizar primera participación
+        </button>
+      </div>
 
-      <h3 v-if="cartera.length" class="heading">Mi cartera</h3>
+      <h3 v-if="cartera.length" class="section-heading">Mi cartera</h3>
       <article
         v-for="p in cartera"
         :key="p.id"
-        class="ticket"
+        class="participacion-card"
         :class="{ dim: atenuada(p) }"
       >
-        <button type="button" class="ticket-btn" @click="toggle(p.id)">
+        <button type="button" class="participacion-item" @click="toggle(p.id)">
           <img
             v-if="p.snapshot_path || p.preview_image_url"
-            class="thumb"
+            class="participacion-thumb"
             :src="mediaUrl(p.snapshot_path || p.preview_image_url)"
             alt=""
             @error="hideBrokenImage"
           />
-          <div v-else class="thumb ph">🎫</div>
-          <div class="info">
+          <div v-else class="participacion-thumb">🎫</div>
+          <div class="participacion-info">
             <strong>{{ p.entidad || 'Entidad' }}</strong>
             <span class="muted">{{ p.numeroReservado || p.numero || p.id }}</span>
-            <span v-if="p.is_digital" class="pill">Digital</span>
+            <span v-if="p.is_digital" class="status-badge digital">Digital</span>
           </div>
-          <div class="meta">
+          <div class="participacion-right">
             <span class="muted">{{ p.sorteo }}</span>
             <span class="muted">{{ p.fechaSorteo }}</span>
-            <span v-if="p.estado !== 'regalada' && (p.premio ?? 0) > 0" class="prize">{{ money(p.premio) }}</span>
-            <span v-if="estadoLabel(p.estado)" class="pill">{{ estadoLabel(p.estado) }}</span>
-            <span v-if="p.cobrable && (p.premio ?? 0) > 0" class="pill ok-pill">Cobro disponible</span>
-            <span v-if="p.payment_blocked && (p.premio ?? 0) > 0 && p.estado !== 'cobrada'" class="pill warn">
+            <span v-if="p.estado !== 'regalada' && (p.premio ?? 0) > 0" class="prize-amount">{{ money(p.premio) }}</span>
+            <span v-if="estadoLabel(p.estado)" class="status-badge" :class="p.estado === 'cobrada' ? 'pagada' : ''">{{ estadoLabel(p.estado) }}</span>
+            <span v-if="p.cobrable && (p.premio ?? 0) > 0" class="status-badge accent">Cobro disponible</span>
+            <span v-if="p.payment_blocked && (p.premio ?? 0) > 0 && p.estado !== 'cobrada'" class="status-badge warn">
               Premio bloqueado
             </span>
           </div>
         </button>
 
-        <div v-if="expandedId === p.id" class="detail">
+        <div v-if="expandedId === p.id" class="participacion-detalle">
           <p><span>Sorteo</span> {{ p.sorteo || '—' }}</p>
           <p><span>Fecha</span> {{ p.fechaSorteo || '—' }}</p>
           <p><span>Importe jugado</span> {{ money(p.importeJugado) }}</p>
@@ -317,6 +345,14 @@ onMounted(() => {
             <button class="btn" type="button" @click="aceptarRegalo(p, $event)">Aceptar regalo</button>
             <button class="btn btn-ghost" type="button" @click="rechazarRegalo(p, $event)">Rechazar</button>
           </div>
+          <RouterLink
+            v-if="p.cobrable && (p.premio ?? 0) > 0"
+            class="btn"
+            :to="{ name: 'usuario-cobrar' }"
+            @click.stop
+          >
+            Cobrar {{ money(p.premio) }}
+          </RouterLink>
           <button v-if="puedeRegalar(p)" class="btn btn-soft" type="button" @click="openGift(p, $event)">
             Regalar
           </button>
@@ -324,17 +360,17 @@ onMounted(() => {
       </article>
 
       <template v-if="almacen.length">
-        <h3 class="heading">Almacén</h3>
+        <h3 class="section-heading">Almacén</h3>
         <p class="muted">Solo consulta. Para cobrar, acude a la entidad o digitaliza.</p>
-        <article v-for="p in almacen" :key="'s' + p.id" class="ticket">
-          <button type="button" class="ticket-btn" @click="toggle(p.id)">
-            <div class="info">
+        <article v-for="p in almacen" :key="'s' + p.id" class="participacion-card">
+          <button type="button" class="participacion-item" @click="toggle(p.id)">
+            <div class="participacion-info">
               <strong>{{ p.entidad || 'Entidad' }}</strong>
-              <span class="pill">Almacén</span>
+              <span class="status-badge">Almacén</span>
             </div>
-            <span v-if="(p.premio ?? 0) > 0" class="prize">{{ money(p.premio) }}</span>
+            <span v-if="(p.premio ?? 0) > 0" class="prize-amount">{{ money(p.premio) }}</span>
           </button>
-          <div v-if="expandedId === p.id" class="detail">
+          <div v-if="expandedId === p.id" class="participacion-detalle">
             <p v-if="p.storage_message">{{ p.storage_message }}</p>
             <p v-if="(p.premio ?? 0) > 0"><span>Premio orientativo</span> {{ money(p.premio) }}</p>
             <p v-if="p.presencial_contact?.formatted">
@@ -419,133 +455,29 @@ onMounted(() => {
 </template>
 
 <style scoped>
-h2,
-h3 {
-  margin: 0 0 0.25rem;
-}
-.heading {
-  font-size: 1rem;
-  margin-top: 0.4rem;
-}
-.ok {
-  color: var(--accent);
-  font-weight: 600;
-  margin: 0;
-}
-.filters {
+.filters-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.6rem;
   align-items: end;
 }
-.filters .field {
+.filters-card .field {
   margin: 0;
 }
-.filters .check {
+.filters-card .check {
   grid-column: 1 / -1;
-}
-.filters .btn {
-  grid-column: 1 / -1;
-}
-.check {
   display: flex;
   gap: 0.4rem;
   align-items: center;
   font-size: 0.88rem;
-  padding-bottom: 0.1rem;
 }
-.ticket {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
+.filters-card .btn {
+  grid-column: 1 / -1;
 }
-.ticket.dim {
+.participacion-card.dim {
   opacity: 0.7;
-}
-.ticket-btn {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 52px 1fr auto;
-  gap: 0.7rem;
-  align-items: center;
-  text-align: left;
-  border: none;
-  background: transparent;
-  padding: 0.7rem;
-  cursor: pointer;
-}
-.thumb {
-  width: 52px;
-  height: 52px;
-  object-fit: cover;
-  border-radius: 8px;
-  background: #eef2f6;
-}
-.ph {
-  display: grid;
-  place-items: center;
-  font-size: 1.3rem;
-}
-.info,
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  min-width: 0;
-}
-.meta {
-  align-items: flex-end;
-  font-size: 0.82rem;
-}
-.pill {
-  display: inline-flex;
-  align-self: flex-start;
-  background: #eef2f6;
-  border-radius: 999px;
-  padding: 0.1rem 0.45rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-.ok-pill {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.warn {
-  background: #fde8e8;
-  color: var(--danger);
-}
-.prize {
-  font-weight: 800;
-  color: var(--accent);
-}
-.detail {
-  border-top: 1px solid var(--border);
-  padding: 0.75rem 0.85rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-}
-.detail p {
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-.detail span {
-  color: var(--muted);
 }
 .pager {
   justify-content: space-between;
-}
-@media (max-width: 700px) {
-  .ticket-btn {
-    grid-template-columns: 44px 1fr;
-  }
-  .meta {
-    grid-column: 1 / -1;
-    align-items: flex-start;
-  }
 }
 </style>

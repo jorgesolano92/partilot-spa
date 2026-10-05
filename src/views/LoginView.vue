@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { asset } from '@/lib/asset'
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -26,9 +27,10 @@ async function onSubmit() {
 <template>
   <div class="login-wrap">
     <form class="card login-card stack" @submit.prevent="onSubmit">
-      <div>
-        <h1>Partilot</h1>
-        <p class="muted">Acceso web como usuario, vendedor o gestor</p>
+      <div class="brand-section">
+        <img :src="asset('assets/logo_menu.svg')" alt="Partilot" class="brand-logo brand-logo--auth" />
+        <h1>Bienvenido</h1>
+        <p class="muted">Accede a tu cuenta <strong>PARTILOT</strong></p>
       </div>
 
       <label class="field">
@@ -46,6 +48,10 @@ async function onSubmit() {
       <button class="btn" type="submit" :disabled="auth.loading">
         {{ auth.loading ? 'Entrando…' : 'Entrar' }}
       </button>
+      <p class="muted center">
+        ¿No tienes cuenta?
+        <RouterLink :to="{ name: 'registro' }">Regístrate</RouterLink>
+      </p>
     </form>
   </div>
 </template>
@@ -56,12 +62,26 @@ async function onSubmit() {
   display: grid;
   place-items: center;
   padding: 1.5rem;
+  background: #f8f8f8;
 }
 .login-card {
   width: min(100%, 420px);
 }
+.brand-section {
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
 h1 {
   margin: 0 0 0.25rem;
-  letter-spacing: -0.03em;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+.brand-section .muted {
+  margin: 0;
+}
+.center {
+  text-align: center;
+  margin: 0;
 }
 </style>

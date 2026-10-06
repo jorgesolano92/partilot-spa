@@ -9,6 +9,7 @@ export const NOTIFICATION_KIND_LABELS: Record<string, string> = {
   cobro_registrado: 'Cobro',
   invitacion_vendedor: 'Invitación vendedor',
   asignacion_participaciones: 'Asignación',
+  liquidacion_vendedor: 'Liquidación',
   resultados_sorteo: 'Resultados',
   cobro: 'Cobro',
   regalo: 'Regalo',

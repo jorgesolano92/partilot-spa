@@ -48,6 +48,9 @@ async function onSubmit() {
       <button class="btn" type="submit" :disabled="auth.loading">
         {{ auth.loading ? 'Entrando…' : 'Entrar' }}
       </button>
+      <p class="center">
+        <RouterLink :to="{ name: 'recuperar-contrasena' }">¿Olvidaste tu contraseña?</RouterLink>
+      </p>
       <p class="muted center">
         ¿No tienes cuenta?
         <RouterLink :to="{ name: 'registro' }">Regístrate</RouterLink>

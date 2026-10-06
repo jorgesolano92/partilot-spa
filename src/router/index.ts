@@ -17,6 +17,17 @@ const router = createRouter({
       meta: { guest: true },
     },
     {
+      path: '/recuperar-contrasena',
+      name: 'recuperar-contrasena',
+      component: () => import('@/views/ForgotPasswordView.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/restablecer-contrasena',
+      name: 'restablecer-contrasena',
+      component: () => import('@/views/ResetPasswordView.vue'),
+    },
+    {
       path: '/',
       component: () => import('@/layouts/AppShell.vue'),
       meta: { requiresAuth: true },

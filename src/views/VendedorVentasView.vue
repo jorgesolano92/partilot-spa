@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { api } from '@/api/client'
-import { money } from '@/lib/format'
+import { formatDateTime, money } from '@/lib/format'
 import type { MySalesResponse, SaleHistorialItem } from '@/types'
 
 const loading = ref(false)
@@ -51,7 +51,10 @@ onMounted(() => {
         </p>
       </div>
       <div class="list-card-meta">
-        <span>{{ item.fechaSorteo || item.participacion?.fechaSorteo || '—' }}</span>
+        <span>Vendida {{ formatDateTime(item.fecha) }}</span>
+        <span v-if="item.fechaSorteo || item.participacion?.fechaSorteo" class="muted">
+          Sorteo {{ item.fechaSorteo || item.participacion?.fechaSorteo }}
+        </span>
         <span>{{ item.formaPago || '—' }}</span>
         <span v-if="item.participacion?.importeTotal != null" class="highlight">
           {{ money(item.participacion.importeTotal) }}

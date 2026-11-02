@@ -116,6 +116,9 @@ async function respondInvitation(action: 'accept' | 'reject') {
       return
     }
     await auth.refresh()
+    if (action === 'accept' && auth.seller) {
+      auth.setMode('vendedor')
+    }
     closeDetail()
     await load()
   } catch (e: unknown) {
@@ -141,14 +144,18 @@ async function markAllRead() {
 }
 
 async function openFromDeepLink(key: string) {
-  let target = items.value.find((n) => n.roleInvitationKey === key)
+  let target = items.value.find((n) => n.roleInvitationKey === key && isActionableInvite(n))
+  if (!target) {
+    target = items.value.find((n) => n.roleInvitationKey === key)
+  }
   if (!target) {
     const sellerId = key.startsWith('seller-') ? key.slice('seller-'.length) : ''
     if (sellerId) {
       try {
         await api.post(`/notifications/seller-invitations/${sellerId}/notify`)
         await load()
-        target = items.value.find((n) => n.roleInvitationKey === key)
+        target = items.value.find((n) => n.roleInvitationKey === key && isActionableInvite(n))
+          ?? items.value.find((n) => n.roleInvitationKey === key)
       } catch {
         /* fall through */
       }
@@ -158,18 +165,11 @@ async function openFromDeepLink(key: string) {
     await openItem(target)
     return
   }
-  invitationError.value = 'Invitación no disponible o ya procesada.'
-  selected.value = {
-    id: 0,
-    tipo: 'invitacion_vendedor',
-    titulo: 'Invitación vendedor',
-    mensaje: '',
-    fecha: new Date().toISOString(),
-    leida: true,
-    roleInvitationKey: key,
-    actionable: true,
+  // No abrir sheet vacío: quitar deep link y avisar en la lista.
+  error.value = 'Invitación no disponible o ya procesada.'
+  if (route.query.invitation) {
+    void router.replace({ name: 'usuario-notificaciones' })
   }
-  await loadInvitation(key)
 }
 
 watch(

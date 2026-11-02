@@ -85,6 +85,9 @@ async function respond(action: 'accept' | 'reject') {
     pending.value = null
     detail.value = null
     await auth.refresh()
+    if (action === 'accept' && auth.seller) {
+      auth.setMode('vendedor')
+    }
     emit('answered')
     await load()
   } catch (e: unknown) {

@@ -55,6 +55,15 @@ function atenuada(p: WalletParticipation) {
   return p.estado === 'regalada' || p.estado === 'pendiente_regalo'
 }
 
+function numerosDe(p: WalletParticipation): string[] {
+  const raw = String(p.numeroReservado || p.numero || p.id || '').trim()
+  if (!raw) return []
+  return raw
+    .split(/[\s,;|/·–—-]+/)
+    .map((n) => n.trim())
+    .filter((n) => /^\d{1,6}$/.test(n))
+}
+
 function puedeRegalar(p: WalletParticipation) {
   if (p.is_storage) return false
   const e = p.estado || 'activa'
@@ -296,7 +305,7 @@ onMounted(() => {
         class="participacion-card"
         :class="{ dim: atenuada(p) }"
       >
-        <button type="button" class="participacion-item" @click="toggle(p.id)">
+        <button type="button" class="participacion-item compact" @click="toggle(p.id)">
           <img
             v-if="p.snapshot_path || p.preview_image_url"
             class="participacion-thumb"
@@ -304,21 +313,29 @@ onMounted(() => {
             alt=""
             @error="hideBrokenImage"
           />
-          <div v-else class="participacion-thumb">🎫</div>
-          <div class="participacion-info">
-            <strong>{{ p.entidad || 'Entidad' }}</strong>
-            <span class="muted">{{ p.numeroReservado || p.numero || p.id }}</span>
-            <span v-if="p.is_digital" class="status-badge digital">Digital</span>
+          <div v-else class="participacion-thumb compact-thumb">🎫</div>
+          <div class="participacion-body">
+            <div class="participacion-title-row">
+              <strong>{{ p.entidad || 'Entidad' }}</strong>
+            </div>
+            <div v-if="numerosDe(p).length" class="numeros-line">
+              <span v-for="(n, i) in numerosDe(p)" :key="i" class="numero-chip">{{ n }}</span>
+            </div>
+            <div class="participacion-meta-row">
+              <span v-if="p.is_digital" class="status-badge digital">Digital</span>
+              <span v-if="p.numeroParticipacion" class="muted tiny">{{ p.numeroParticipacion }}</span>
+              <span v-if="p.sorteo" class="muted tiny">{{ p.sorteo }}</span>
+              <span v-if="p.fechaSorteo" class="muted tiny">{{ p.fechaSorteo }}</span>
+            </div>
           </div>
-          <div class="participacion-right">
-            <span class="muted">{{ p.sorteo }}</span>
-            <span class="muted">{{ p.fechaSorteo }}</span>
+          <div class="participacion-aside">
             <span v-if="p.estado !== 'regalada' && (p.premio ?? 0) > 0" class="prize-amount">{{ money(p.premio) }}</span>
             <span v-if="estadoLabel(p.estado)" class="status-badge" :class="p.estado === 'cobrada' ? 'pagada' : ''">{{ estadoLabel(p.estado) }}</span>
             <span v-if="p.cobrable && (p.premio ?? 0) > 0" class="status-badge accent">Cobro disponible</span>
             <span v-if="p.payment_blocked && (p.premio ?? 0) > 0 && p.estado !== 'cobrada'" class="status-badge warn">
               Premio bloqueado
             </span>
+            <span class="chevron">{{ expandedId === p.id ? '▾' : '›' }}</span>
           </div>
         </button>
 

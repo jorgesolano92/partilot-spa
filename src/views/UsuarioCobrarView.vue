@@ -473,12 +473,15 @@ onMounted(() => {
 
       <template v-if="bloqueadas.length">
         <h3 class="heading">Premios bloqueados</h3>
-        <p class="muted">Aún no se puede cobrar online. El mensaje lo marca la entidad o Partilot.</p>
+        <p class="muted">Aún no se puede cobrar online. Contacta con la entidad o espera la activación del cobro.</p>
         <article v-for="p in bloqueadas" :key="'b' + p.id" class="item dim">
           <div class="item-row">
             <div class="info">
               <strong>{{ p.entidad || 'Entidad' }}</strong>
               <span class="muted">{{ p.user_message || 'Cobro pendiente de activación' }}</span>
+              <span v-if="p.presencial_contact?.formatted" class="muted">
+                {{ p.presencial_contact.formatted }}
+              </span>
             </div>
             <strong class="prize">{{ money(p.premio) }}</strong>
           </div>

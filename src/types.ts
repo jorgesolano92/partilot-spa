@@ -132,6 +132,7 @@ export interface WalletParticipation {
   payment_blocked?: boolean
   can_generate_recharge_code?: boolean
   can_donate?: boolean
+  can_gift?: boolean
   can_issue_donation_certificate?: boolean
   user_message?: string
   storage_message?: string | null
@@ -328,6 +329,7 @@ export interface AppNotification {
   roleInvitationKey?: string | null
   assignmentState?: string | null
   actionable?: boolean
+  proposalId?: number | null
   deepLink?: string | null
 }
 

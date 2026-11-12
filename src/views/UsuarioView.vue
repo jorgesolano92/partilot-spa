@@ -66,6 +66,7 @@ function numerosDe(p: WalletParticipation): string[] {
 
 function puedeRegalar(p: WalletParticipation) {
   if (p.is_storage) return false
+  if (p.can_gift === false) return false
   const e = p.estado || 'activa'
   if (['cobrada', 'donada', 'caducada', 'regalada', 'pendiente_regalo'].includes(e)) return false
   if (p.received_from_email || p.gift_status === 'accepted') return false

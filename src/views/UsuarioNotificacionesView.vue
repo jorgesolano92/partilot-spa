@@ -44,6 +44,15 @@ function isActionableInvite(n: AppNotification): boolean {
   )
 }
 
+function isPendingAssignment(n: AppNotification): boolean {
+  return (
+    n.tipo === 'asignacion_participaciones' &&
+    n.assignmentState === 'pending' &&
+    Boolean(n.proposalId) &&
+    n.actionable !== false
+  )
+}
+
 async function load() {
   loading.value = true
   error.value = null
@@ -77,6 +86,7 @@ async function openItem(n: AppNotification) {
   selected.value = n
   invitation.value = null
   invitationError.value = null
+  error.value = null
 
   if (!n.leida) {
     try {
@@ -96,6 +106,7 @@ function closeDetail() {
   selected.value = null
   invitation.value = null
   invitationError.value = null
+  error.value = null
   if (route.query.invitation) {
     void router.replace({ name: 'usuario-notificaciones' })
   }
@@ -124,6 +135,62 @@ async function respondInvitation(action: 'accept' | 'reject') {
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
     error.value = err.response?.data?.message || 'No se pudo procesar la invitación.'
+  } finally {
+    busy.value = false
+  }
+}
+
+async function respondAssignment(action: 'accept' | 'reject') {
+  const proposalId = selected.value?.proposalId
+  if (!proposalId) return
+
+  const confirmMsg =
+    action === 'accept'
+      ? '¿Confirmas que has recibido estas participaciones físicas?'
+      : 'Las participaciones volverán a estar disponibles para la entidad. ¿Rechazar?'
+  if (!confirm(confirmMsg)) return
+
+  busy.value = true
+  error.value = null
+  try {
+    // La API exige perfil vendedor activo (aunque el panel esté en modo Usuario).
+    if (!auth.seller) {
+      await auth.refresh()
+    }
+    if (!auth.seller) {
+      error.value = 'Necesitas perfil de vendedor para aceptar o rechazar esta asignación.'
+      return
+    }
+
+    const { data } = await api.post<{ success: boolean; message?: string; title?: string }>(
+      `/sellers/me/assignment-proposals/${proposalId}/${action}`,
+      {},
+    )
+    if (!data.success) {
+      error.value = data.message || 'No se pudo procesar la asignación.'
+      return
+    }
+    if (selected.value) {
+      selected.value = {
+        ...selected.value,
+        actionable: false,
+        assignmentState: action === 'accept' ? 'accepted' : 'rejected',
+      }
+    }
+    if (action === 'accept') {
+      auth.setMode('vendedor')
+    }
+    closeDetail()
+    await load()
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string }; status?: number } }
+    if (err.response?.status === 403) {
+      error.value =
+        err.response?.data?.message ||
+        'No tienes permisos de vendedor. Cambia a modo Vendedor o acepta la invitación primero.'
+    } else {
+      error.value = err.response?.data?.message || 'No se pudo procesar la asignación.'
+    }
   } finally {
     busy.value = false
   }
@@ -234,7 +301,7 @@ onMounted(async () => {
             <strong>{{ n.titulo || notificationKindLabel(n.tipo) }}</strong>
             <span class="muted clamp">{{ n.mensaje }}</span>
             <span v-if="n.entidadNombre" class="muted">{{ n.entidadNombre }}</span>
-            <span v-if="isActionableInvite(n)" class="tag-pending">Acción pendiente</span>
+            <span v-if="isActionableInvite(n) || isPendingAssignment(n)" class="tag-pending">Acción pendiente</span>
           </div>
           <div class="meta">
             <span class="pill">{{ notificationKindLabel(n.tipo) }}</span>
@@ -261,6 +328,7 @@ onMounted(async () => {
       </p>
       <p v-if="selected.invitadorTexto" class="muted">{{ selected.invitadorTexto }}</p>
       <p v-if="invitationError" class="error">{{ invitationError }}</p>
+      <p v-if="error" class="error">{{ error }}</p>
 
       <template v-if="isActionableInvite(selected) && invitation">
         <div class="row-actions">
@@ -274,6 +342,25 @@ onMounted(async () => {
             @click="respondInvitation('reject')"
           >
             {{ invitation.reject_label || 'Rechazar' }}
+          </button>
+        </div>
+      </template>
+
+      <template v-else-if="isPendingAssignment(selected)">
+        <p class="muted">
+          Confirma el recibo de las participaciones físicas. Si rechazas, volverán a la entidad.
+        </p>
+        <div class="row-actions">
+          <button class="btn" type="button" :disabled="busy" @click="respondAssignment('accept')">
+            {{ busy ? 'Procesando…' : 'Aceptar asignación' }}
+          </button>
+          <button
+            class="btn btn-ghost"
+            type="button"
+            :disabled="busy"
+            @click="respondAssignment('reject')"
+          >
+            Rechazar
           </button>
         </div>
       </template>
